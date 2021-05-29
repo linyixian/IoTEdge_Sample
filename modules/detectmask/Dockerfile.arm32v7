@@ -1,0 +1,41 @@
+FROM arm32v7/python:3.7-slim-buster
+
+WORKDIR /app
+RUN mkdir templates
+
+RUN apt update && apt install -y \
+    python3 \
+    python3-dev \
+    python3-pip \
+    libglib2.0-dev \
+    protobuf-compiler \
+    cmake \
+    libcurl4-openssl-dev libjpeg-dev libjpeg62-turbo libgl1-mesa-glx liblcms2-2 libwebpdemux2 libpng16-16 libaom0 \
+    libatk-bridge2.0-0 libatk1.0-0 libatlas3-base libatspi2.0-0 libavcodec58 libavformat58 \
+    libavutil56 libbluray2 libcairo-gobject2 libcairo2 libchromaprint1 libcodec2-0.8.1 libcroco3 libdatrie1 \
+    libdrm2 libepoxy0 libfontconfig1 libgdk-pixbuf2.0-0 libgfortran5 libgme0 libgraphite2-3 libgsm1 libgtk-3-0 \
+    libharfbuzz0b libilmbase23 libjbig0 libmp3lame0 libmpg123-0 libogg0 libopenexr23 libopenjp2-7 libopenmpt0 \
+    libopus0 libpango-1.0-0 libpangocairo-1.0-0 libpangoft2-1.0-0 libpixman-1-0 librsvg2-2 libshine3 libsnappy1v5 \
+    libsoxr0 libspeex1 libssh-gcrypt-4 libswresample3 libswscale5 libthai0 libtheora0 libtiff5 libtwolame0 libva-drm2 \
+    libva-x11-2 libva2 libvdpau1 libvorbis0a libvorbisenc2 libvorbisfile3 libvpx5 libwavpack1 libwayland-client0 \
+    libwayland-cursor0 libwayland-egl1 libwebp6 libwebpmux3 libx264-155 libx265-165 libxcb-render0 libxcb-shm0 \
+    libxcomposite1 libxcursor1 libxdamage1 libxfixes3 libxi6 libxinerama1 libxkbcommon0 libxrandr2 libxrender1 libxvidcore4 libzvbi0
+
+COPY requirements.txt ./
+COPY onnxruntime-1.7.1-cp37-cp37m-linux_armv7l.whl ./
+COPY onnx-1.9.0-cp37-cp37m-linux_armv7l.whl ./
+COPY opencv_python-4.5.1.48-cp37-cp37m-linux_armv7l.whl ./
+COPY index.html ./templates
+
+RUN pip3 install flask --extra-index-url=https://www.piwheels.org/simple
+RUN pip3 install Pillow --extra-index-url=https://www.piwheels.org/simple
+RUN pip3 install numpy --extra-index-url=https://www.piwheels.org/simple
+RUN pip3 install opencv_python --extra-index-url=https://www.piwheels.org/simple
+RUN pip3 install onnx-1.9.0-cp37-cp37m-linux_armv7l.whl
+RUN pip3 install onnxruntime-1.7.1-cp37-cp37m-linux_armv7l.whl
+
+RUN pip install -r requirements.txt
+
+COPY . .
+
+CMD [ "python3", "-u", "./main.py" ]
